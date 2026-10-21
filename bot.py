@@ -212,7 +212,6 @@ async def join_cmd():
     embed = discord.Embed(title="Joining the team?")
     if team["is_open"]:
         embed.add_field(name="", inline=False, value="")
-    
 
 @bot.event
 async def on_ready():
@@ -222,13 +221,13 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("That command doesn't exist. Run `s!c` to see the list.")
+        await ctx.send("That command doesn't exist. Run `s!c` to see the list of commands.")
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send(f"Missing argument: `{error.param.name}`. Run `s!c` for usage.")
     elif isinstance(error, commands.BadArgument):
-        await ctx.send("One of your arguments isn't valid.")
+        await ctx.send("One of your arguments isn't valid. Run `s!c` for usage.")
     else:
-        await ctx.send("Something went wrong running that command.")
+        await ctx.send("Something went wrong running that command. Please contact nekomatata__okayun for details.")
         raise error
 
 bot.run("")
