@@ -77,10 +77,8 @@ async def members(ctx, gamemode):
     teamId = fileData["id"]
     flag = fileData["flag_url"]
     name = fileData["name"]
-    shortName = fileData["short_name"]
     cover = fileData["cover_url"]
     created = fileData["created_at"]
-    isOpen = fileData["is_open"]
     emptySlots = fileData["empty_slots"]
 
     # Team stats
@@ -197,6 +195,24 @@ async def member(ctx, username):
     embed.add_field(name="Kudosu", inline=True, value=mem["kudosu"]["total"])
     embed.add_field(name="Ranked beatmaps", inline=True, value=mem["ranked_beatmapset_count"])
     await ctx.send(embed=embed)
+
+@bot.command(name="discord", aliases=["d"]
+async def dc(ctx):
+    dcUsername = []
+    osuUsername = []
+    team = apiGet("teams/27574")
+    embed = discord.Embed(title="SF's discord", color=0xff00ff)
+    embed.set_thumbnail(url=team["flag_url"])
+    for name in dcUsername:
+        embed.add_field(name="", inline=False, value="")
+        
+@bot.command(name="join", aliases=["j"]
+async def join_cmd():
+    team = apiGet("teams/27574")
+    embed = discord.Embed(title="Joining the team?")
+    if team["is_open"]:
+        embed.add_field(name="", inline=False, value="")
+    
 
 @bot.event
 async def on_ready():
