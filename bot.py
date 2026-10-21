@@ -9,7 +9,6 @@ _token = None
 _token_expires = 0
 CLIENT_ID = 
 CLIENT_SECRET = 
-# nice try but no token for you here
 def numFormat(num):
     return format(num, ",").replace(',', ' ')
 def getToken():
@@ -51,7 +50,7 @@ async def version(ctx):
     await ctx.send(f"Made by Sopia with ❤ using discordpy version {discord.__version__} for my beloved Shirokane's Family")
 
 @bot.command(name="commands", aliases=["c"])
-async def commands(ctx):
+async def cmd(ctx):
     fileData = apiGet(f"teams/27574")
     embed = discord.Embed(title="Commands", color=0xff00ff, description="Bot prefix: s!")
     embed.add_field(name="Available rulesets", inline=False, value="osu, mania, fruits, taiko")
@@ -67,6 +66,11 @@ async def commands(ctx):
 
 @bot.command(name="team", aliases=["t"])
 async def members(ctx, gamemode):
+    validModes = ["osu", "mania", "fruits", "taiko"]
+    if gamemode not in validModes:
+        await ctx.send(f"Invalid ruleset. Choose from: {', '.join(validModes)}")
+        return
+
     fileData = apiGet(f"teams/27574/{gamemode}")
 
     # Basic team data
@@ -120,6 +124,10 @@ async def player(ctx):
 
 @bot.command(name="leaderboard", aliases=["lb"])
 async def leaderboard(ctx, gamemode):
+    validModes = ["osu", "mania", "fruits", "taiko"]
+    if gamemode not in validModes:
+        await ctx.send(f"Invalid ruleset. Choose from: {', '.join(validModes)}")
+        return
     author = ctx.author
     embed = discord.Embed(title="Leaderboard", description=f"Mode: {gamemode}", color=0xff00ff)
     team = apiGet(f"teams/27574/{gamemode}")
@@ -158,12 +166,16 @@ async def leaderboard(ctx, gamemode):
                         embed.add_field(name=f"🥉 {u['username']} - {stats["pp"]:,.0f}pp (#{numFormat(stats["global_rank"])})", inline=False, value="")
                         continue
                     embed.add_field(name=f"{i}. {u['username']} - {stats["pp"]:,.0f}pp (#{numFormat(stats["global_rank"])})", inline=False, value="")
-    # it works, dont touch it
+    # if it works dont touch it
     embed.set_footer(text=f"Requested by {author.name}", icon_url=author.display_avatar.url)
     await ctx.send(embed=embed)
 
 @bot.command(name="member", aliases=["m"])
 async def member(ctx, username):
+    validNames = ["Shoka", "Ahiru", "Ayoko", "Fuyu", "Huna", "Izuna", "Kuru", "Mita", "Mofu", "Shizu", "Sopia", "Sora", "Yuuki"]
+    if username not in validNames:
+        await ctx.send(f"Invalid name, perhaps that person isn't in the family?")
+        return
     author = ctx.author
     username += " Shirokane"
     mem = apiGet(f"users/@{username}")
@@ -190,9 +202,17 @@ async def member(ctx, username):
 async def on_ready():
     print(f'Running on discordpy version {discord.__version__}')
     print(f'Logged in as {bot.user}')
-    #channel = bot.get_channel(1297141950847389739)
-    #if channel:
-    #    await channel.send("This is a test version of the bot, run s!h for help")
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("That command doesn't exist. Run `s!c` to see the list.")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"Missing argument: `{error.param.name}`. Run `s!c` for usage.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send("One of your arguments isn't valid.")
+    else:
+        await ctx.send("Something went wrong running that command.")
+        raise error
 
 bot.run("")
-# get yown own discord id gng
