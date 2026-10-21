@@ -61,7 +61,7 @@ async def cmd(ctx):
     embed.add_field(name="member/m {name}", inline=False, value="Shows information about the chosen member (only name needed, you don't have to type Shoka Shirokane, just Shoka)")
     embed.add_field(name="discord/d (name)", inline=False, value="Shows information about every/or just one member's discord account")
     embed.add_field(name="birthday/bd (name)", inline=False, value="Shows every/or just one member's birthday")
-    embed.add_field(name="join/j {osu_username} {account_link} {reason}", inline=False, value="Joining the team (just an application, also DO NOT use if you don't really want to join our team)")
+    embed.add_field(name='join/j "{osu_username}" {account_link} "{reason}"', inline=False, value="Joining the team (just an application, also DO NOT use if you don't really want to join our team)")
     embed.add_field(name="about", inline=False, value="Shows information about the bot")
     embed.add_field(name="Small notice", inline=False, value="Please don't spam the commands since I'm rate-limited to 60 requests/minute, also if you found any bugs or want to suggest a feature drop me a DM on <@891082078383382548>")
     embed.set_image(url=fileData["cover_url"])
@@ -250,7 +250,7 @@ async def birthday(ctx, *name):
 @bot.command(name="join", aliases=["j"])
 async def join_cmd(ctx, name, link, reason):
     author = ctx.author
-    embed = discord.Embed()
+    embed = discord.Embed(color=0xff00ff)
     dcID = [993465312500527144, 874515432298659850, 1093105047996465233, 891082078383382548, 1053613020338728961, 944864649407528972, 1034103806536978453, 904895148700348437, 943810069051609200, 392482017712930836, 977761484354490388, 652844542881693710, 1021040111997165600, 937726510796779560]
     for discordid in dcID:
         if author.id == discordid:
@@ -259,10 +259,14 @@ async def join_cmd(ctx, name, link, reason):
     team = apiGet("teams/27574")
     embed.set_thumbnail(url=team["flag_url"])
     if team["is_open"]:
-        embed.add_field(name="Successfully applied! One of the members will be with you shortly (Using this command won't guarantee you a spot, it just shows that you wanted to join us.)", inline=False, value="")
+        embed.add_field(name="Successfully applied! One of the members will be with you shortly (Using this command won't guarantee you a spot, it just shows that you wanted to join us.)", inline=False, value=f"Username: {name} \nAccount link: {link} \nReason: {reason} \nIf anything didn't look right, feel free to apply again, but check if you already have double quotes around your name and reason.")
+        embed.add_field(name="", inline=False, value="P/S: If you applied just for fun, without any intentions of joining the team, good luck joining next time you actually want to.")
         channel = bot.get_channel(1562537373416423524)
+        applyEmbed = discord.Embed(title="Team application", color=0xff00ff)
+        applyEmbed.add_field(name="", inline=False, value=f"Discord: <@{author.id}> \nUsername: {name} \nAccount link: {link} \nReason: {reason}")
         if channel:
-            await channel.send(f'<@891082078383382548>, <@{author.id}> applied for SF under {name}, osu account link: {link}, because {reason}')
+            await channel.send('<@891082078383382548>')
+            await channel.send(embed=applyEmbed)
     else:
         embed.add_field(name="Our team is closed or out of slots, please try again later")
     await ctx.send(embed=embed)
