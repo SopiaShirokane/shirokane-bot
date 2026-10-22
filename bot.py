@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 _token = None
 _token_expires = 0
@@ -42,6 +42,7 @@ def getUser(ids):
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 bot = commands.Bot(command_prefix="s!", intents=intents, helpCommand=None)
 
@@ -204,11 +205,9 @@ async def member(ctx, username):
 @bot.command(name="discord", aliases=["d"])
 async def dc(ctx, *name):
     author = ctx.author
-    team = apiGet("teams/27574")
     dcID = [993465312500527144, 874515432298659850, 1093105047996465233, 891082078383382548, 1053613020338728961, 944864649407528972, 1034103806536978453, 904895148700348437, 943810069051609200, 392482017712930836, 977761484354490388, 652844542881693710, 1021040111997165600, 937726510796779560]
     osuUsername = ["Shizu Shirokane", "Fuyu Shirokane", "Shoka Shirokane", "Sopia Shirokane", "Yuuki Shirokane", "Mofu Shirokane", "Mita Shirokane", "Ayoko Shirokane", "Ahiru Shirokane", "Huna Shirokane", "Izuna Shirokane", "Kuru Shirokane", "Izumi Shirokane", "Sora Shirokane"]
     embed = discord.Embed(title="SF discord", color=0xff00ff)
-    embed.set_thumbnail(url=team["flag_url"])
     embed.set_footer(text=f"Requested by {author.name}", icon_url=author.display_avatar.url)
     validNames = ["Shoka", "Ahiru", "Ayoko", "Fuyu", "Huna", "Izuna", "Kuru", "Mita", "Mofu", "Shizu", "Sopia", "Sora", "Yuuki", "Izumi"]
     if len(name) != 1 or name[0] not in validNames:
@@ -230,32 +229,37 @@ async def dc(ctx, *name):
 @bot.command(name="birthday", aliases=["bd"])
 async def birthday(ctx, *name):
     author = ctx.author
-    team = apiGet("teams/27574")
-    birthdays = ["20/09", "22/12", "16/02", "13/12", "08/05", "21/07", "18/03", "04/03", "02/04", "12/03", "02/08", "27/04", "22/07 \n(member not currently in the team)", "21/01"]
+    birthdays = ["20/09", "22/12", "16/02", "13/12", "08/05", "21/07", "18/03", "04/03", "02/04", "12/03", "02/08", "27/04", "22/07 (member not currently in the team)", "21/01"]
     osuUsername = ["Shizu Shirokane", "Fuyu Shirokane", "Shoka Shirokane", "Sopia Shirokane", "Yuuki Shirokane", "Mofu Shirokane", "Mita Shirokane", "Ayoko Shirokane", "Ahiru Shirokane", "Huna Shirokane", "Izuna Shirokane", "Kuru Shirokane", "Izumi Shirokane", "Sora Shirokane"]
-    embed = discord.Embed(title="SF birthday", color=0xff00ff)
-    embed.set_thumbnail(url=team["flag_url"])
-    embed.set_footer(text=f"Requested by {author.name}", icon_url=author.display_avatar.url)
     validNames = ["Shoka", "Ahiru", "Ayoko", "Fuyu", "Huna", "Izuna", "Kuru", "Mita", "Mofu", "Shizu", "Sopia", "Sora", "Yuuki", "Izumi"]
     if len(name) != 1 or name[0] not in validNames:
+        embed = discord.Embed(title="SF birthday", color=0xff00ff)
+        embed.set_footer(text=f"Requested by {author.name}", icon_url=author.display_avatar.url)
         for i in range(len(osuUsername)):
             embed.add_field(name=osuUsername[i], inline=False, value=birthdays[i])
         await ctx.send(embed=embed)
     else:
         for i in range(len(osuUsername)):
+            now = datetime.now().strftime("%Y")
             if osuUsername[i] == name[0] + " Shirokane":
-                embed.add_field(name=osuUsername[i], inline=False, value=birthdays[i])
-        await ctx.send(embed=embed)
+                bd = now + "/" + birthdays[i]
+                dtnow = datetime.now().strftime("%Y/%d/%m")
+                td = datetime.strptime(bd, "%Y/%d/%m") - datetime.strptime(dtnow, "%Y/%d/%m")
+                if td == timedelta(0):
+                    await ctx.send(f"Today is {name[0]}'s birthday! Wish them a happy birthday!")
+                elif td < timedelta(0):
+                    await ctx.send(f"{name[0]}'s birthday is on {birthdays[i]}, already passed this year.")                                          
+                else:
+                    await ctx.send(f"{name[0]}'s birthday is on {birthdays[i]}, {td.days} days until their birthday.")
 
 @bot.command(name="join", aliases=["j"])
 async def join_cmd(ctx, name, link, reason):
     author = ctx.author
     embed = discord.Embed(color=0xff00ff)
-    dcID = [993465312500527144, 874515432298659850, 1093105047996465233, 891082078383382548, 1053613020338728961, 944864649407528972, 1034103806536978453, 904895148700348437, 943810069051609200, 392482017712930836, 977761484354490388, 652844542881693710, 1021040111997165600, 937726510796779560]
-    for discordid in dcID:
-        if author.id == discordid:
-            await ctx.send("You are already a part of the team! Maybe find someone else to join?")
-            return
+    role = discord.utils.get(ctx.guild.roles, name="Shirokane's Family")
+    if role in author.roles:
+        await ctx.send("You are already a part of the team! Maybe find someone else to join?")
+        return
     team = apiGet("teams/27574")
     embed.set_thumbnail(url=team["flag_url"])
     if team["is_open"]:
