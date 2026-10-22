@@ -61,9 +61,9 @@ async def cmd(ctx):
     embed.add_field(name="member/m {name}", inline=False, value="Hiển thị thông tin về thành viên đã chọn (chỉ cần tên, bạn không cần phải gõ đầy đủ Shoka Shirokane, chỉ cần gõ Shoka)")
     embed.add_field(name="discord/d (name)", inline=False, value="Hiển thị thông tin về tài khoản discord của mỗi thành viên (Ví dụ: s!discord Shoka)")
     embed.add_field(name="birthday/bd (name)", inline=False, value="Hiển thị sinh nhật của mỗi thành viên (Ví dụ: s!birthday Shoka)")
-    embed.add_field(name='join/j "{osu_username}" {account_link} "{reason}"', inline=False, value="Gửi đơn xin gia nhập vào gia đình nhà Shirokane (LƯU Ý: Vui lòng không dùng lệnh này nếu bạn không thực sự có ý định tham gia)")
+    embed.add_field(name='join/j "{osu_username}" {account_link} "{reason}"', inline=False, value="Gửi đơn xin gia nhập vào gia đình nhà Shirokane (LƯU Ý: Vui lòng KHÔNG dùng lệnh này nếu bạn không thực sự có ý định tham gia)")
     embed.add_field(name="about", inline=False, value="Hiển thị thông tin giới thiệu về bot")
-    embed.add_field(name="Small notice", inline=False, value="Vui lòng không spam lệnh vì bot bị giới hạn 60 request/phút. Nếu bot gặp lỗi hoặc muốn góp ý tính năng, hãy nhắn tin riêng (DM) cho <@891082078383382548>")
+    embed.add_field(name="Lưu ý nhỏ", inline=False, value="Nếu hậu tố (name) bị bỏ trống, lệnh sẽ hiển thị thông tin của tất cả các thành viên (Ví dụ: s!discord) và vui lòng KHÔNG spam lệnh vì bot bị giới hạn 60 request/phút. Nếu bot gặp lỗi hoặc muốn góp ý tính năng, hãy nhắn tin riêng (DM) cho <@891082078383382548>")
     embed.set_image(url=fileData["cover_url"])
     await ctx.send(embed=embed)
 
