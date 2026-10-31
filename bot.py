@@ -62,7 +62,9 @@ async def cmd(ctx):
     embed.add_field(name="member/m {name}", inline=False, value="Hiển thị thông tin về thành viên đã chọn (chỉ cần tên, bạn không cần phải gõ đầy đủ Shoka Shirokane, chỉ cần gõ Shoka)")
     embed.add_field(name="discord/d (name)", inline=False, value="Hiển thị thông tin về tài khoản discord của mỗi thành viên (Ví dụ: s!discord Shoka)")
     embed.add_field(name="birthday/bd (name)", inline=False, value="Hiển thị sinh nhật của mỗi thành viên (Ví dụ: s!birthday Shoka)")
-    embed.add_field(name='join/j "{osu_username}" {account_link} "{reason}"', inline=False, value="Gửi đơn xin gia nhập vào gia đình nhà Shirokane (LƯU Ý: Vui lòng KHÔNG dùng lệnh này nếu bạn không thực sự có ý định tham gia)")
+    embed.add_field(name='apply/a "{osu_username}" {account_link} "{reason}"', inline=False, value="Gửi đơn xin gia nhập vào gia đình nhà Shirokane (LƯU Ý: Vui lòng không dùng lệnh này nếu bạn không thực sự có ý định tham gia)")
+    embed.add_field(name="join/j", inline=False, value="Joins the channel you are in and play a random soundboard every 5-10 minutes")
+    embed.add_field(name="leave/l", inline=False, value="Leave the current channel")
     embed.add_field(name="about", inline=False, value="Hiển thị thông tin giới thiệu về bot")
     embed.add_field(name="Lưu ý nhỏ", inline=False, value="Nếu hậu tố (name) bị bỏ trống, lệnh sẽ hiển thị thông tin của tất cả các thành viên (Ví dụ: s!discord) và vui lòng KHÔNG spam lệnh vì bot bị giới hạn 60 request/phút. Nếu bot gặp lỗi hoặc muốn góp ý tính năng, hãy nhắn tin riêng (DM) cho <@891082078383382548>")
     embed.set_image(url=fileData["cover_url"])
@@ -252,10 +254,11 @@ async def birthday(ctx, *name):
                 else:
                     await ctx.send(f"{name[0]}'s birthday is on {birthdays[i]}, {td.days} days until their birthday.")
 
-@bot.command(name="join", aliases=["j"])
-async def join_cmd(ctx, name, link, reason):
+@bot.command(name="apply", aliases=["a"])
+async def apply(ctx, name, link, reason):
     author = ctx.author
     embed = discord.Embed(color=0xff00ff)
+    embed.set_footer(text=f"Requested by {author.name}", icon_url=author.display_avatar.url)
     role = discord.utils.get(ctx.guild.roles, name="Shirokane's Family")
     if role in author.roles:
         await ctx.send("You are already a part of the team! Maybe find someone else to join?")
@@ -275,6 +278,50 @@ async def join_cmd(ctx, name, link, reason):
         embed.add_field(name="Our team is closed or out of slots, please try again later")
     await ctx.send(embed=embed)
 
+soundTasks = {}
+async def randomSounds(guild, minMin, maxMin):
+    try:
+        while True:
+            await asyncio.sleep(random.uniform(minMin * 60, maxMin * 60))
+            vc = guild.voice_client
+            if vc is None:
+                break
+            if not guild.soundboard_sounds:
+                continue
+            await vc.channel.send_sound(random.choice(guild.soundboard_sounds))
+    except Exception as e:
+        print("randomSounds stopped:", repr(e))
+    finally:
+        soundTasks.pop(guild.id, None)
+
+@bot.command(name="join", aliases=["j"])
+async def join_channel(ctx, minMin: float = 5, maxMin: float = 10):
+    author = ctx.author
+    if author.voice is None:
+        await ctx.send("You have to join a voice channel before using this command")
+        return
+    channel = author.voice.channel
+    if ctx.voice_client is not None:
+        await ctx.send(f"I'm already connected to {ctx.voice_client.channel.name}")
+    else:
+        await channel.connect()
+        await ctx.send(f"Joined {channel.name}")
+    if ctx.guild.id in soundTasks:
+            soundTasks[ctx.guild.id].cancel()
+    soundTasks[ctx.guild.id] = asyncio.create_task(randomSounds(ctx.guild, minMin, maxMin))
+
+@bot.command(name="leave", aliases=["l"])
+async def leave(ctx):
+    if ctx.voice_client is None:
+        await ctx.send("I'm not in any voice channel")
+        return
+    await ctx.voice_client.disconnect()
+    await ctx.send("Left the voice channel.")
+
+@bot.command(name="tyrant")
+async def tyrant(ctx):
+    await ctx.send("https://media.discordapp.net/attachments/1261339516573057085/1505401349263855777/697287807_901433076255777_3267157898855959148_n.webp?ex=6adcc502&is=6adb7382&hm=06867433bec086e266179b25bf7274ebcc79984d6151d236c62e7914c0ac304d&=&animated=true")
+
 @bot.event
 async def on_ready():
     print(f'Running on discordpy version {discord.__version__}')
@@ -285,7 +332,7 @@ async def on_message(message):
     content = message.content.strip()
     if content == "s!" or content.startswith("s! "):
         channel = message.channel
-        await channel.send("You just wanted to summon me didn't you?")
+        await channel.send("Hello?")
     await bot.process_commands(message)
 
 @bot.event
