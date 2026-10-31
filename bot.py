@@ -66,7 +66,7 @@ async def cmd(ctx):
     embed.add_field(name="join/j", inline=False, value="Joins the channel you are in and play a random soundboard every 5-10 minutes")
     embed.add_field(name="leave/l", inline=False, value="Leave the current channel")
     embed.add_field(name="about", inline=False, value="Hiển thị thông tin giới thiệu về bot")
-    embed.add_field(name="Small notice", inline=False, value="Vui lòng không spam lệnh vì bot bị giới hạn 60 request/phút. Nếu bot gặp lỗi hoặc muốn góp ý tính năng, hãy nhắn tin riêng (DM) cho <@891082078383382548>")
+    embed.add_field(name="Lưu ý nhỏ", inline=False, value="Nếu hậu tố (name) bị bỏ trống, lệnh sẽ hiển thị thông tin của tất cả các thành viên (Ví dụ: s!discord) và vui lòng KHÔNG spam lệnh vì bot bị giới hạn 60 request/phút. Nếu bot gặp lỗi hoặc muốn góp ý tính năng, hãy nhắn tin riêng (DM) cho <@891082078383382548>")
     embed.set_image(url=fileData["cover_url"])
     await ctx.send(embed=embed)
 
