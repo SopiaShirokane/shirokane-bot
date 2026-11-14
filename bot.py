@@ -347,11 +347,18 @@ async def on_message(message):
     if any(content.startswith(name) for name in tuna):
         await message.reply("https://c.tenor.com/2NqeUVsVdmQAAAAC/tenor.gif")
 
-    gbv = ["gaybaovu", "giabaovu", "Gaybaovu", "Giabaovu"]
+    gbv = ["gaybaovu", "giabaovu", "Gaybaovu", "Giabaovu", "gbv", "Gbv"]
     content = message.content.strip()
     if any(content.startswith(name) for name in gbv):
         await message.add_reaction("🏳️‍🌈")
         await message.add_reaction("<:gaybaovu:1569764677100241008>")
+
+    phushi = ["phushi", "Phushi", "phushiowo", "PhushiOwO", "234"]
+    content = message.content.strip()
+    if any(content.startswith(name) for name in phushi):
+        await message.add_reaction("2️⃣")
+        await message.add_reaction("3️⃣")
+        await message.add_reaction("4️⃣")
 
     await bot.process_commands(message)
 
